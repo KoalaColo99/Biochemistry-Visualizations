@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Biochemistry Visualizations</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">Teaching dashboard</p>
+      <h1>Biochemistry Visualizations</h1>
+    </div>
+    <div class="top-actions">
+      <button id="printPlan" type="button">Print lesson set</button>
+      <button id="exportFavorites" type="button">Export favorites</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar" aria-label="Course categories">
+      <label class="search-label" for="searchBox">Find a topic</label>
+      <input id="searchBox" type="search" placeholder="Try peptide bond, glycolysis, ETC...">
+      <div id="categoryList" class="category-list"></div>
+    </aside>
+
+    <section class="content">
+      <div class="content-head">
+        <div>
+          <p id="activeCategoryLabel" class="eyebrow">All categories</p>
+          <h2 id="activeTitle">Visualization options</h2>
+        </div>
+        <div class="filters" aria-label="Visualization filters">
+          <button class="filter active" data-filter="all" type="button">All</button>
+          <button class="filter" data-filter="interactive" type="button">Interactive</button>
+          <button class="filter" data-filter="class-demo" type="button">Class demo</button>
+          <button class="filter" data-filter="molecular" type="button">Molecular</button>
+          <button class="filter" data-filter="pathway" type="button">Pathway</button>
+        </div>
+      </div>
+
+      <div class="stage">
+        <section class="live-panel" aria-label="Live visualization">
+          <div class="live-copy">
+            <p class="eyebrow">Live mini-demo</p>
+            <h3 id="demoTitle">Peptide Bond Resonance</h3>
+            <p id="demoText">Show how resonance delocalization creates partial double-bond character, keeping the peptide bond planar and rotation-poor.</p>
+          </div>
+          <div id="demoCanvas" class="demo-canvas" role="img" aria-label="Animated biochemical visualization"></div>
+          <div id="demoControls" class="demo-controls"></div>
+        </section>
+
+        <section class="quick-list" aria-label="Favorites">
+          <div class="quick-head">
+            <p class="eyebrow">Saved set</p>
+            <button id="clearFavorites" type="button">Clear</button>
+          </div>
+          <div id="favoritesList" class="favorites-list"></div>
+        </section>
+      </div>
+
+      <div id="cards" class="cards" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <template id="cardTemplate">
+    <article class="card">
+      <div class="card-top">
+        <span class="badge"></span>
+        <button class="save" type="button" aria-label="Save to lesson set">☆</button>
+      </div>
+      <h3></h3>
+      <p class="summary"></p>
+      <div class="chips"></div>
+      <div class="prompts"></div>
+      <div class="card-actions">
+        <button class="demo-button" type="button">Open mini-demo</button>
+        <a class="resource-link" target="_blank" rel="noreferrer">Open resource</a>
+      </div>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
