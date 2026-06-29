@@ -20,12 +20,23 @@ const resources = [
   {
     id: "aa-ionization",
     category: "Amino Acid Structure",
-    title: "Amino Acid Ionization and Side-Chain Identity",
-    summary: "Use a pH slider to connect zwitterions, side-chain charge, pKa values, and why structure changes with environment.",
+    title: "Amino Acid Ionization and Zwitterions",
+    summary: "Use a pH slider to connect protonation state, zwitterions, pKa values, net charge, and physiological pH.",
     type: "interactive",
     tags: ["interactive", "class-demo", "molecular"],
     demo: "ionization",
-    prompts: ["Ask students to predict net charge before moving the pH.", "Pause at physiological pH and compare acidic, basic, and neutral side chains."],
+    prompts: ["Ask students to predict net charge before moving the pH.", "Pause near pH 7.4 and identify the protonated amino group and deprotonated carboxyl group."],
+    link: "https://molview.org/"
+  },
+  {
+    id: "aa-backbone",
+    category: "Amino Acid Structure",
+    title: "Shared Alpha-Amino Acid Backbone",
+    summary: "Build the common amino acid scaffold from the alpha carbon, amino group, carboxyl group, hydrogen, and variable R group.",
+    type: "interactive",
+    tags: ["interactive", "class-demo", "molecular"],
+    demo: "backbone",
+    prompts: ["Reveal one group at a time and ask what all 20 proteogenic amino acids share.", "Use the R group as the bridge from common backbone to chemical diversity."],
     link: "https://molview.org/"
   },
   {
@@ -37,6 +48,50 @@ const resources = [
     tags: ["interactive", "molecular"],
     demo: "chirality",
     prompts: ["Have students point to the alpha carbon, amine, carboxylate, H, and R group.", "Use glycine as the exception that proves the rule."],
+    link: "https://molview.org/"
+  },
+  {
+    id: "aa-classification",
+    category: "Amino Acid Structure",
+    title: "R-Group Classification Map",
+    summary: "Sort the 20 common amino acids into nonpolar aliphatic, aromatic, polar uncharged, positively charged, and negatively charged groups.",
+    type: "class-demo",
+    tags: ["interactive", "class-demo", "molecular"],
+    demo: "classification",
+    prompts: ["Move across categories and ask students what chemical feature earns membership.", "Connect polarity, charge, and hydrophobicity to folding and solubility."],
+    link: "https://molview.org/"
+  },
+  {
+    id: "aa-aromatic-uv",
+    category: "Amino Acid Structure",
+    title: "Aromatic Side Chains and UV Absorbance",
+    summary: "Compare phenylalanine, tyrosine, and tryptophan to show why conjugated ring systems absorb near 280 nm.",
+    type: "interactive",
+    tags: ["interactive", "class-demo", "molecular"],
+    demo: "aromaticuv",
+    prompts: ["Ask students which aromatic side chain should absorb most strongly before revealing the bar heights.", "Connect UV absorbance to protein detection and quantification."],
+    link: "https://molview.org/"
+  },
+  {
+    id: "aa-titration-pi",
+    category: "Amino Acid Structure",
+    title: "Titration Curves and Isoelectric Point",
+    summary: "Trace glycine and histidine titration behavior, including buffering regions and the pH where net charge is zero.",
+    type: "interactive",
+    tags: ["interactive", "class-demo"],
+    demo: "titration",
+    prompts: ["Have students locate buffering regions before naming pKa values.", "Compare glycine with histidine to show why ionizable side chains add extra inflection points."],
+    link: "https://molview.org/"
+  },
+  {
+    id: "aa-sidechain-catalysis",
+    category: "Amino Acid Structure",
+    title: "Ionizable Side Chains in Catalysis",
+    summary: "Focus on Asp, Glu, His, Cys, Tyr, Lys, and Arg as acid-base or ionic participants in active sites.",
+    type: "class-demo",
+    tags: ["interactive", "class-demo", "molecular"],
+    demo: "sidechaincatalysis",
+    prompts: ["Ask which side chains can donate or accept protons near physiological pH.", "Use histidine to preview enzyme active sites because imidazole can gain or lose a proton near neutral pH."],
     link: "https://molview.org/"
   },
   {
@@ -298,11 +353,79 @@ const state = {
   category: "All",
   filter: "all",
   query: "",
-  demo: "resonance",
+  demo: "backbone",
   favorites: JSON.parse(localStorage.getItem("biochemVizFavorites") || "[]")
 };
 
+const aaCategories = [
+  {
+    name: "Nonpolar aliphatic",
+    examples: "Gly, Ala, Val, Leu, Ile, Met, Pro",
+    feature: "hydrophobic side chains",
+    color: "#dff0e8"
+  },
+  {
+    name: "Aromatic",
+    examples: "Phe, Tyr, Trp",
+    feature: "conjugated ring systems",
+    color: "#fff0df"
+  },
+  {
+    name: "Polar uncharged",
+    examples: "Ser, Thr, Asn, Gln, Cys",
+    feature: "H-bond donors/acceptors",
+    color: "#e8eef8"
+  },
+  {
+    name: "Positive",
+    examples: "Lys, Arg, His",
+    feature: "cationic or protonatable",
+    color: "#f5e4ef"
+  },
+  {
+    name: "Negative",
+    examples: "Asp, Glu",
+    feature: "carboxylates at pH 7",
+    color: "#e5f1fb"
+  }
+];
+
+const catalyticSideChains = [
+  { code: "Asp", group: "carboxylate", role: "accepts H+", pka: "3.9", color: "#e5f1fb" },
+  { code: "Glu", group: "carboxylate", role: "accepts H+", pka: "4.3", color: "#e5f1fb" },
+  { code: "His", group: "imidazole", role: "donates or accepts H+", pka: "6.0", color: "#fff0df" },
+  { code: "Cys", group: "thiol/thiolate", role: "nucleophile, redox", pka: "8.3", color: "#edf6e5" },
+  { code: "Tyr", group: "phenol", role: "H-bonding, acid/base", pka: "10.1", color: "#f6eadf" },
+  { code: "Lys", group: "amino", role: "donates H+, ionic", pka: "10.5", color: "#f5e4ef" },
+  { code: "Arg", group: "guanidinium", role: "ionic pairing", pka: "12.5", color: "#f5e4ef" }
+];
+
 const demos = {
+  backbone: {
+    title: "Shared Alpha-Amino Acid Backbone",
+    text: "Build the generic amino acid scaffold, then use the R group to explain why the same backbone can produce many protein behaviors.",
+    controls: [{ id: "part", label: "Reveal", min: 0, max: 4, value: 4 }],
+    render: values => {
+      const part = Number(values.part ?? 4);
+      const pieces = [
+        { x: 135, y: 128, label: "NH3+", name: "amino group", show: part >= 1 },
+        { x: 392, y: 128, label: "COO-", name: "carboxyl group", show: part >= 2 },
+        { x: 260, y: 52, label: "H", name: "hydrogen", show: part >= 3 },
+        { x: 260, y: 208, label: "R", name: "variable side chain", show: part >= 4 }
+      ];
+      return svg(520, 260, `
+        <circle class="node" cx="260" cy="128" r="31"/><text class="label" x="260" y="133">Cα</text>
+        ${pieces.map(item => item.show ? `
+          <line class="bond" x1="260" y1="128" x2="${item.x}" y2="${item.y}"/>
+          <circle class="node" cx="${item.x}" cy="${item.y}" r="${item.label.length > 2 ? 38 : 25}"/>
+          <text class="label" x="${item.x}" y="${item.y + 5}">${item.label}</text>
+        ` : "").join("")}
+        <rect x="66" y="20" width="132" height="34" rx="8" fill="#e9f4f4" stroke="#d8e1e1"/>
+        <text class="small-label" x="132" y="42">alpha-amino acid</text>
+        <text class="small-label" x="260" y="241">${part < 4 ? "Reveal each shared group, then finish with the R group." : "R group chemistry drives polarity, charge, folding, and function."}</text>
+      `);
+    }
+  },
   resonance: {
     title: "Peptide Bond Resonance",
     text: "Show how resonance delocalization creates partial double-bond character, keeping the peptide bond planar and rotation-poor.",
@@ -348,14 +471,128 @@ const demos = {
   chirality: {
     title: "L-Amino Acid Chirality",
     text: "Rotate the alpha carbon substituents to show tetrahedral geometry and why glycine is achiral.",
-    controls: [{ id: "rot", label: "Rotation", min: 0, max: 360, value: 35 }],
+    controls: [
+      { id: "rot", label: "Rotation", min: 0, max: 360, value: 35 },
+      { id: "gly", label: "Glycine exception", min: 0, max: 1, value: 0 }
+    ],
     render: values => {
       const r = Number(values.rot ?? 35) * Math.PI / 180;
-      const pts = [[0,-72,"NH3+"],[74,0,"COO-"],[0,72,"R"],[-74,0,"H"]].map(([x,y,t]) => [260 + x*Math.cos(r)-y*Math.sin(r), 130 + x*Math.sin(r)+y*Math.cos(r), t]);
+      const gly = Number(values.gly ?? 0) > 0;
+      const pts = [[0,-72,"NH3+"],[74,0,"COO-"],[0,72,gly ? "H" : "R"],[-74,0,"H"]].map(([x,y,t]) => [260 + x*Math.cos(r)-y*Math.sin(r), 130 + x*Math.sin(r)+y*Math.cos(r), t]);
       return svg(520, 260, `
         <circle class="node" cx="260" cy="130" r="30"/><text class="label" x="260" y="135">Cα</text>
         ${pts.map(([x,y,t], i) => `<line class="bond ${i === 3 ? "blue" : ""}" x1="260" y1="130" x2="${x}" y2="${y}"/><circle class="node" cx="${x}" cy="${y}" r="30"/><text class="label" x="${x}" y="${y+5}">${t}</text>`).join("")}
-        <text class="small-label" x="260" y="238">Most protein amino acids are L; glycine has two H substituents and is achiral.</text>
+        <text class="small-label" x="260" y="238">${gly ? "Glycine has two H substituents, so the alpha carbon is achiral." : "Proteins use L-amino acids; stereochemistry shapes protein architecture."}</text>
+      `);
+    }
+  },
+  classification: {
+    title: "R-Group Classification Map",
+    text: "Step through side-chain classes and connect chemical features to folding, solubility, and interactions.",
+    controls: [{ id: "cat", label: "Category", min: 0, max: 4, value: 0 }],
+    render: values => {
+      const selected = Number(values.cat ?? 0);
+      const active = aaCategories[selected];
+      return svg(560, 300, `
+        <text class="small-label" x="280" y="26">20 common amino acids grouped by R-group chemistry</text>
+        ${aaCategories.map((cat, i) => {
+          const x = 80 + (i % 3) * 200;
+          const y = i < 3 ? 72 : 192;
+          const on = i === selected;
+          return `
+            <rect x="${x - 68}" y="${y - 36}" width="136" height="72" rx="8" fill="${cat.color}" stroke="${on ? "#b94b30" : "#d8e1e1"}" stroke-width="${on ? 4 : 2}"/>
+            <text class="label" x="${x}" y="${y - 8}">${cat.name}</text>
+            <text class="small-label" x="${x}" y="${y + 15}">${cat.examples}</text>
+          `;
+        }).join("")}
+        <rect x="92" y="238" width="376" height="38" rx="8" fill="#fff" stroke="#d8e1e1"/>
+        <text class="small-label" x="280" y="262">${active.name}: ${active.feature}</text>
+      `);
+    }
+  },
+  aromaticuv: {
+    title: "Aromatic Side Chains and UV Absorbance",
+    text: "Compare aromatic ring systems to explain why proteins with Trp and Tyr are readily detected near 280 nm.",
+    controls: [{ id: "highlight", label: "Highlight", min: 0, max: 2, value: 2 }],
+    render: values => {
+      const h = Number(values.highlight ?? 2);
+      const amino = [
+        { code: "Phe", rings: 1, absorb: 35, note: "benzyl ring" },
+        { code: "Tyr", rings: 1, absorb: 62, note: "phenol adds polarity" },
+        { code: "Trp", rings: 2, absorb: 96, note: "largest 280 nm signal" }
+      ];
+      return svg(560, 300, `
+        <line class="bond" x1="82" y1="238" x2="494" y2="238"/><line class="bond" x1="82" y1="238" x2="82" y2="50"/>
+        ${amino.map((aa, i) => {
+          const x = 160 + i * 130;
+          const bar = aa.absorb * 1.55;
+          const on = i === h;
+          return `
+            <rect x="${x - 24}" y="${238 - bar}" width="48" height="${bar}" rx="6" fill="${on ? "#b94b30" : "#9fb7d9"}"/>
+            <text class="label" x="${x}" y="266">${aa.code}</text>
+            ${ringGlyph(x, 76, aa.rings, on)}
+            <text class="small-label" x="${x}" y="286">${aa.note}</text>
+          `;
+        }).join("")}
+        <text class="small-label" x="98" y="42">relative UV absorbance</text>
+        <text class="small-label" x="292" y="24">Conjugated pi systems allow electronic transitions near 280 nm.</text>
+      `);
+    }
+  },
+  titration: {
+    title: "Titration Curves and Isoelectric Point",
+    text: "Switch from glycine to histidine to see how ionizable side chains add buffering regions and change pI logic.",
+    controls: [
+      { id: "aa", label: "Gly to His", min: 0, max: 1, value: 0 },
+      { id: "ph", label: "pH", min: 0, max: 14, value: 6 }
+    ],
+    render: values => {
+      const his = Number(values.aa ?? 0) > 0;
+      const ph = Number(values.ph ?? 6);
+      const pKas = his ? [1.8, 6.0, 9.2] : [2.3, 9.6];
+      const pI = his ? 7.6 : 6.0;
+      let curve = "";
+      for (let i = 0; i <= 140; i += 2) {
+        const xph = i / 10;
+        const charge = pKas.reduce((sum, pka, idx) => sum - 1 / (1 + Math.pow(10, pka - xph)), his ? 2 : 1);
+        const y = 202 - ((charge + 1.2) / (his ? 3.4 : 2.4)) * 150;
+        curve += `${80 + xph * 28},${y} `;
+      }
+      const markerX = 80 + ph * 28;
+      return svg(560, 300, `
+        <line class="bond" x1="72" y1="222" x2="490" y2="222"/><line class="bond" x1="80" y1="232" x2="80" y2="42"/>
+        <polyline points="${curve}" fill="none" stroke="#19757a" stroke-width="5"/>
+        ${pKas.map(pka => `<line class="hot" x1="${80 + pka * 28}" y1="60" x2="${80 + pka * 28}" y2="222" stroke-dasharray="5 7"/><text class="small-label" x="${80 + pka * 28}" y="48">pKa ${pka}</text>`).join("")}
+        <line class="hot blue" x1="${80 + pI * 28}" y1="75" x2="${80 + pI * 28}" y2="222" stroke-dasharray="2 7"/>
+        <circle cx="${markerX}" cy="222" r="8" fill="#b94b30"/><text class="small-label" x="${markerX}" y="246">pH ${ph.toFixed(1)}</text>
+        <text class="label" x="430" y="78">${his ? "Histidine" : "Glycine"}</text>
+        <text class="small-label" x="430" y="102">pI about ${pI.toFixed(1)}</text>
+        <text class="small-label" x="280" y="282">${his ? "Histidine buffers near neutral pH because imidazole has pKa about 6." : "Glycine's pI is midway between its two backbone pKa values."}</text>
+      `);
+    }
+  },
+  sidechaincatalysis: {
+    title: "Ionizable Side Chains in Catalysis",
+    text: "Highlight residues whose side chains commonly donate or accept protons, stabilize charge, or form reactive nucleophiles.",
+    controls: [{ id: "residue", label: "Residue", min: 0, max: 6, value: 2 }],
+    render: values => {
+      const idx = Number(values.residue ?? 2);
+      const aa = catalyticSideChains[idx];
+      return svg(560, 300, `
+        <rect x="48" y="54" width="464" height="142" rx="8" fill="#fff" stroke="#d8e1e1"/>
+        <circle class="node" cx="142" cy="124" r="28"/><text class="label" x="142" y="129">Cα</text>
+        <line class="bond" x1="170" y1="124" x2="258" y2="124"/>
+        <rect x="258" y="82" width="176" height="84" rx="8" fill="${aa.color}" stroke="#172122" stroke-width="2"/>
+        <text class="label" x="346" y="112">${aa.code}</text>
+        <text class="small-label" x="346" y="137">${aa.group}</text>
+        <path class="hot" d="M374 77 C420 44 466 76 448 122" marker-end="url(#arrow)"/>
+        <text class="small-label" x="437" y="54">H+ transfer</text>
+        ${catalyticSideChains.map((item, i) => {
+          const x = 78 + i * 67;
+          const on = i === idx;
+          return `<circle cx="${x}" cy="232" r="${on ? 23 : 18}" fill="${on ? "#b94b30" : item.color}" stroke="#172122" stroke-width="2"/><text class="small-label" x="${x}" y="237">${item.code}</text>`;
+        }).join("")}
+        <text class="small-label" x="280" y="274">${aa.code}: ${aa.role}; side-chain pKa about ${aa.pka}</text>
       `);
     }
   },
@@ -581,6 +818,15 @@ function pathwayDemo(title, steps, text) {
       `);
     }
   };
+}
+
+function ringGlyph(x, y, count, active) {
+  const first = `<polygon points="${x},${y - 28} ${x + 26},${y - 14} ${x + 26},${y + 14} ${x},${y + 28} ${x - 26},${y + 14} ${x - 26},${y - 14}" fill="${active ? "#fff0df" : "#fff"}" stroke="#172122" stroke-width="2"/>`;
+  const second = count > 1
+    ? `<polygon points="${x + 38},${y - 22} ${x + 59},${y - 10} ${x + 55},${y + 15} ${x + 31},${y + 25} ${x + 14},${y + 8} ${x + 20},${y - 14}" fill="${active ? "#fff0df" : "#fff"}" stroke="#172122" stroke-width="2"/>`
+    : "";
+  const piLines = `<line class="hot" x1="${x - 15}" y1="${y - 12}" x2="${x + 15}" y2="${y - 12}" opacity="${active ? 1 : 0.35}"/><line class="hot" x1="${x - 16}" y1="${y + 13}" x2="${x + 15}" y2="${y + 13}" opacity="${active ? 1 : 0.35}"/>`;
+  return `${first}${second}${piLines}`;
 }
 
 function svg(width, height, body) {
